@@ -1,4 +1,5 @@
 const matchAllValidCommandsPattern = /mul\(\d+,\d+\)|do\(\)|don't\(\)/g;
+const matchMultiplication = new RegExp(`mul\\(([0-9]{1,3}),([0-9]{1,3})\\)`, "g");
 
 async function findAllEnabledMultiplications(filePath: string): Promise<void> {
     try {
@@ -7,19 +8,18 @@ async function findAllEnabledMultiplications(filePath: string): Promise<void> {
         const parsed = [];
         let isEnabled = true; 
         for (const line of lines) {
-
                 const matches = line.match(matchAllValidCommandsPattern);
                 if (matches) {
                     for (const match of matches) {
-                        const matchMult2 = new RegExp(`mul\\(([0-9]{1,3}),([0-9]{1,3})\\)`, "g");
+                        matchMultiplication.lastIndex = 0;
                     if (match === "do()") {
                         isEnabled = true; 
                     } else if (match === "don't()") {
                         isEnabled = false; 
-                    } else if (matchMult2.test(match) && isEnabled) {
+                    } else if (matchMultiplication.test(match) && isEnabled) {
                         let multiMatch;
-                        matchMult2.lastIndex = 0;
-                        while ((multiMatch = matchMult2.exec(match)) !== null) {
+                        matchMultiplication.lastIndex = 0;
+                        while ((multiMatch = matchMultiplication.exec(match)) !== null) {
                             parsed.push({ first: parseInt(multiMatch[1], 10), second: parseInt(multiMatch[2], 10) });
                         }
                     }
